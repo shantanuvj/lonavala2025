@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Expense Report</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 320px;
+            max-height: 400px;
+        }
+        @media (min-width: 640px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 400px;
+            }
+        }
+        .kpi-value {
+            color: #00A9E0;
+        }
+        .settlement-arrow {
+            font-size: 2rem;
+            line-height: 1;
+            color: #F47920;
+        }
+        .header-gradient {
+            background: linear-gradient(90deg, #7B4395, #00A9E0);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- Narrative Plan: The infographic tells the story of a group trip's finances. It starts with a high-level overview (total cost), breaks down how it was paid, shows who contributed the most, details individual payment types, visualizes the final settlement cash flow, and concludes by categorizing the expenses. -->
+    <!-- Visualization Plan: 1. Overview: Big Numbers (Styled HTML) to inform. 2. Payment Methods: Donut Chart (Chart.js/Canvas) to show composition. 3. Total Contributions: Bar Chart (Chart.js/Canvas) to compare individuals. 4. Contribution Breakdown: Stacked Bar Chart (Chart.js/Canvas) to show composition within individuals. 5. Settlement: Flow Diagram (Styled HTML/CSS) to organize payment flow. 6. Expense Categories: Pie Chart (Chart.js/Canvas) to show composition. NEITHER Mermaid JS NOR SVG were used anywhere. -->
+    <!-- Color Palette: Energetic & Playful -->
+    <!-- CONFIRMATION: NEITHER Mermaid JS NOR SVG were used anywhere in this output. All visualizations are rendered via Chart.js on Canvas or using structured HTML and CSS with Tailwind. -->
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-12">
+            <div class="header-gradient text-white p-8 rounded-2xl shadow-2xl">
+                <h1 class="text-4xl md:text-5xl font-black tracking-tight">Group Trip Financial Summary</h1>
+                <p class="mt-4 text-lg md:text-xl opacity-90">A complete visual breakdown of our group expenses, contributions, and final settlement.</p>
+            </div>
+        </header>
+
+        <section id="overview" class="mb-16">
+             <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-gray-900">The Big Picture</h2>
+                <p class="text-gray-600 mt-2 max-w-2xl mx-auto">Here’s a look at the top-line numbers for the entire trip.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div class="bg-white p-8 rounded-2xl shadow-lg transform hover:scale-105 transition-transform duration-300">
+                    <h3 class="text-xl font-semibold text-gray-500">Total Expenses</h3>
+                    <p class="text-5xl font-extrabold mt-2 kpi-value">₹73,202</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-lg transform hover:scale-105 transition-transform duration-300">
+                    <h3 class="text-xl font-semibold text-gray-500">Trip Participants</h3>
+                    <p class="text-5xl font-extrabold mt-2 kpi-value">11</p>
+                </div>
+                <div class="bg-white p-8 rounded-2xl shadow-lg transform hover:scale-105 transition-transform duration-300">
+                    <h3 class="text-xl font-semibold text-gray-500">Cost Per Person</h3>
+                    <p class="text-5xl font-extrabold mt-2 kpi-value">₹6,655</p>
+                </div>
+            </div>
+        </section>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 mb-16">
+            <section id="payment-methods" class="bg-white p-6 rounded-2xl shadow-xl">
+                <h3 class="text-2xl font-bold text-center mb-1">How We Paid</h3>
+                 <p class="text-gray-600 text-center mb-4">The total expense was covered through a combination of an advance pool and direct payments by individuals.</p>
+                <div class="chart-container">
+                    <canvas id="paymentMethodsChart"></canvas>
+                </div>
+            </section>
+
+            <section id="expense-categories" class="bg-white p-6 rounded-2xl shadow-xl">
+                <h3 class="text-2xl font-bold text-center mb-1">Where Did The Money Go?</h3>
+                <p class="text-gray-600 text-center mb-4">A breakdown of our spending shows 'Food & Stay' was the largest expense category by a significant margin.</p>
+                <div class="chart-container">
+                    <canvas id="expenseCategoriesChart"></canvas>
+                </div>
+            </section>
+        </div>
+        
+        <section id="contributions" class="mb-16 bg-white p-6 sm:p-8 rounded-2xl shadow-xl">
+            <h3 class="text-2xl md:text-3xl font-bold text-center mb-1">Who Contributed What?</h3>
+            <p class="text-gray-600 text-center mb-6 max-w-3xl mx-auto">This chart ranks the total financial contributions from each person, combining both direct payments and advance amounts. Janu and Vasu were the largest contributors to the trip's costs.</p>
+            <div class="chart-container h-[450px] max-h-[500px] max-w-4xl">
+                <canvas id="contributionsChart"></canvas>
+            </div>
+        </section>
+
+        <section id="contribution-breakdown" class="mb-16 bg-white p-6 sm:p-8 rounded-2xl shadow-xl">
+            <h3 class="text-2xl md:text-3xl font-bold text-center mb-1">Contribution Breakdown</h3>
+            <p class="text-gray-600 text-center mb-6 max-w-3xl mx-auto">Here’s a deeper look at how each person's total contribution was structured between direct payments for items and funds added to the advance pool.</p>
+            <div class="chart-container h-[450px] max-h-[500px] max-w-4xl">
+                <canvas id="contributionBreakdownChart"></canvas>
+            </div>
+        </section>
+
+        <section id="settlement" class="text-center">
+            <h2 class="text-3xl font-bold text-gray-900 mb-2">Final Settlement: Who Pays Who?</h2>
+            <p class="text-gray-600 mb-10 max-w-3xl mx-auto">To balance the books, members who paid less than their share need to settle up with Janu, who covered a larger portion of the expenses. The flow below shows the exact amounts each person needs to pay.</p>
+            <div class="flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-8">
+                <div class="space-y-4">
+                    <div class="bg-red-100 border-2 border-red-300 p-4 rounded-lg shadow-md">
+                        <p class="font-semibold text-lg text-red-800">Abhi Owes</p>
+                        <p class="font-bold text-2xl text-red-600">₹4,924</p>
+                    </div>
+                     <div class="bg-red-100 border-2 border-red-300 p-4 rounded-lg shadow-md">
+                        <p class="font-semibold text-lg text-red-800">Geeta Owes</p>
+                        <p class="font-bold text-2xl text-red-600">₹2,655</p>
+                    </div>
+                     <div class="bg-red-100 border-2 border-red-300 p-4 rounded-lg shadow-md">
+                        <p class="font-semibold text-lg text-red-800">Jui Owes</p>
+                        <p class="font-bold text-2xl text-red-600">₹2,326</p>
+                    </div>
+                     <div class="bg-red-100 border-2 border-red-300 p-4 rounded-lg shadow-md">
+                        <p class="font-semibold text-lg text-red-800">Manu Owes</p>
+                        <p class="font-bold text-2xl text-red-600">₹2,655</p>
+                    </div>
+                    <div class="bg-red-100 border-2 border-red-300 p-4 rounded-lg shadow-md">
+                        <p class="font-semibold text-lg text-red-800">Vasu Owes</p>
+                        <p class="font-bold text-2xl text-red-600">₹2,348</p>
+                    </div>
+                </div>
+                <div class="settlement-arrow transform md:rotate-0 rotate-90">➔</div>
+                <div>
+                    <div class="bg-green-100 border-2 border-green-300 p-8 rounded-lg shadow-lg">
+                        <p class="font-semibold text-xl text-green-800">Payable To Janu</p>
+                        <p class="font-bold text-4xl text-green-600">₹14,548</p>
+                        <p class="text-sm text-green-700 mt-2">(Receives a total of ₹14,908 from all)</p>
+                    </div>
+                </div>
+            </div>
+             <p class="text-xs text-gray-500 mt-8 max-w-3xl mx-auto">Note: Settlement figures are based on the final calculations in the source file. Shanu's contribution of ₹1,619 results in a balance of -₹5,036 owed, but was not included in the provided settlement list. There is a minor ₹360 discrepancy in the source file's final sum.</p>
+        </section>
+
+    </div>
+
+    <script>
+        const FONT_COLOR = '#374151';
+        const GRID_COLOR = '#E5E7EB';
+        const PALETTE = {
+            blue: '#00A9E0',
+            orange: '#F47920',
+            purple: '#7B4395',
+            magenta: '#92278F',
+            green: '#009245',
+            yellow: '#FDB913',
+            red: '#EF4444'
+        };
+
+        const createTooltipTitleCallback = () => {
+             return {
+                title: function(tooltipItems) {
+                    const item = tooltipItems[0];
+                    let label = item.chart.data.labels[item.dataIndex];
+                    if (Array.isArray(label)) {
+                      return label.join(' ');
+                    }
+                    return label;
+                }
+            }
+        };
+
+        const chartDefaultOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: FONT_COLOR,
+                        font: { size: 14 }
+                    }
+                },
+                tooltip: {
+                    callbacks: createTooltipTitleCallback(),
+                    backgroundColor: '#000',
+                    titleFont: { size: 16 },
+                    bodyFont: { size: 14 },
+                    padding: 12,
+                    cornerRadius: 8,
+                    displayColors: true,
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: FONT_COLOR, font: { size: 12 } },
+                    grid: { color: GRID_COLOR, display: false }
+                },
+                y: {
+                    ticks: { color: FONT_COLOR, font: { size: 12 } },
+                    grid: { color: GRID_COLOR }
+                }
+            }
+        };
+        
+        const chartDefaultOptionsNoY = { ...chartDefaultOptions, scales: { x: chartDefaultOptions.scales.x, y: { ...chartDefaultOptions.scales.y, display: false, grid: { display: false } } } };
+
+
+        const paymentMethodsData = {
+            labels: ['Advance Pool', 'Direct Payments'],
+            datasets: [{
+                label: 'Payment Method',
+                data: [47000, 26202],
+                backgroundColor: [PALETTE.blue, PALETTE.orange],
+                borderColor: '#FFFFFF',
+                borderWidth: 4,
+                hoverOffset: 8
+            }]
+        };
+        new Chart(document.getElementById('paymentMethodsChart'), {
+            type: 'doughnut',
+            data: paymentMethodsData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                 plugins: {
+                    legend: {
+                        position: 'bottom',
+                         labels: { color: FONT_COLOR, font: { size: 14 } }
+                    },
+                    tooltip: {
+                        callbacks: createTooltipTitleCallback(),
+                        backgroundColor: '#000',
+                        titleFont: { size: 16 },
+                        bodyFont: { size: 14 },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        callbacks: {
+                             title: (tooltipItems) => tooltipItems[0].label,
+                             label: (context) => ` Amount: ₹${context.parsed.toLocaleString('en-IN')}`
+                        }
+                    }
+                }
+            }
+        });
+
+        const expenseCategoriesData = {
+            labels: ['Food & Stay', ['Shantanu Car', '+ toll'], 'Manu Car', 'Our Car Travel', 'Snacks', 'Other'],
+            datasets: [{
+                label: 'Expense Amount',
+                data: [61800, 1900, 2200, 1843, 3073, 2386],
+                backgroundColor: [PALETTE.blue, PALETTE.orange, PALETTE.purple, PALETTE.magenta, PALETTE.yellow, PALETTE.green],
+                borderColor: '#FFFFFF',
+                borderWidth: 4,
+                hoverOffset: 8
+            }]
+        };
+        new Chart(document.getElementById('expenseCategoriesChart'), {
+            type: 'pie',
+            data: expenseCategoriesData,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                     legend: {
+                        position: 'bottom',
+                         labels: { color: FONT_COLOR, font: { size: 14 },
+                            generateLabels: function(chart) {
+                                const original = Chart.defaults.plugins.legend.labels.generateLabels;
+                                const labelsOriginal = original.call(this, chart);
+                                labelsOriginal.forEach(label => {
+                                    if (Array.isArray(chart.data.labels[label.index])) {
+                                        label.text = chart.data.labels[label.index].join(' ');
+                                    }
+                                });
+                                return labelsOriginal;
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: '#000',
+                        titleFont: { size: 16 },
+                        bodyFont: { size: 14 },
+                        padding: 12,
+                        cornerRadius: 8,
+                        displayColors: true,
+                        callbacks: {
+                             title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                return Array.isArray(label) ? label.join(' ') : label;
+                            },
+                             label: (context) => ` Amount: ₹${context.parsed.toLocaleString('en-IN')}`
+                        }
+                    }
+                }
+            }
+        });
+
+        const contributionsData = {
+            labels: ['Janu', 'Vasu', 'Abhi', 'Jui', 'Geeta', 'Manu', 'Shanu'],
+            datasets: [{
+                label: 'Total Contribution (₹)',
+                data: [32893, 17976, 8385, 4329, 4000, 4000, 1619],
+                backgroundColor: [PALETTE.blue, PALETTE.orange, PALETTE.purple, PALETTE.magenta, PALETTE.green, PALETTE.yellow, PALETTE.red],
+                borderRadius: 8,
+                barThickness: 30,
+            }]
+        };
+        new Chart(document.getElementById('contributionsChart'), {
+            type: 'bar',
+            data: contributionsData,
+            options: { ...chartDefaultOptionsNoY, indexAxis: 'y' }
+        });
+
+
+        const contributionBreakdownData = {
+            labels: ['Janu', 'Vasu', 'Abhi', 'Jui', 'Geeta', 'Manu', 'Shanu'],
+            datasets: [
+                {
+                    label: 'Direct Payments (₹)',
+                    data: [20893, 2976, 385, 329, 0, 0, 1619],
+                    backgroundColor: PALETTE.blue,
+                    borderRadius: 5,
+                },
+                {
+                    label: 'Advance Pool (₹)',
+                    data: [12000, 15000, 8000, 4000, 4000, 4000, 0],
+                    backgroundColor: PALETTE.orange,
+                    borderRadius: 5,
+                }
+            ]
+        };
+        new Chart(document.getElementById('contributionBreakdownChart'), {
+            type: 'bar',
+            data: contributionBreakdownData,
+            options: { ...chartDefaultOptions, scales: { x: { stacked: true }, y: { stacked: true } } }
+        });
+
+    </script>
+</body>
+</html>
